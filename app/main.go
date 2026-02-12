@@ -68,6 +68,8 @@ func main() {
 			Tools:    tools,
 		}
 		response, err := client.Chat.Completions.New(context.Background(), params)
+		choices := response.Choices[0]
+		message = append(message, choices.Message.ToParam())
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: %v\n", err)
 			os.Exit(1)
