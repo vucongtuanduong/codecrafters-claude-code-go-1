@@ -36,60 +36,64 @@ func main() {
 	}
 
 	client := openai.NewClient(option.WithAPIKey(apiKey), option.WithBaseURL(baseUrl))
-	resp, err := client.Chat.Completions.New(context.Background(),
-		openai.ChatCompletionNewParams{
-			Model: model,
-			Messages: []openai.ChatCompletionMessageParamUnion{
-				{
-					OfUser: &openai.ChatCompletionUserMessageParam{
-						Content: openai.ChatCompletionUserMessageParamContentUnion{
-							OfString: openai.String(prompt),
-						},
-					},
+	message := []openai.ChatCompletionMessageParamUnion{
+		{
+			OfUser: &openai.ChatCompletionUserMessageParam{
+				Content: openai.ChatCompletionUserMessageParamContentUnion{
+					OfString: openai.String(prompt),
 				},
 			},
-			Tools: []openai.ChatCompletionToolUnionParam{
-				openai.ChatCompletionFunctionTool(openai.FunctionDefinitionParam{
-					Name:        ReadToolName,
-					Description: openai.String("Read and return the content of files"),
-					Parameters: openai.FunctionParameters{
-						"type": "object",
-						"properties": map[string]any{
-							"file_path": map[string]any{
-								"type":        "string",
-								"description": "The path to the file to read",
-							},
-						},
-						"required": []string{"file_path"},
-					},
-				}),
-			},
 		},
-	)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: %v\n", err)
-		os.Exit(1)
 	}
-	if len(resp.Choices) == 0 {
-		panic("No choices in response")
+	tools := []openai.ChatCompletionToolUnionParam{
+		openai.ChatCompletionFunctionTool(openai.FunctionDefinitionParam{
+			Name:        ReadToolName,
+			Description: openai.String("Read and return the content of files"),
+			Parameters: openai.FunctionParameters{
+				"type": "object",
+				"properties": map[string]any{
+					"file_path": map[string]any{
+						"type":        "string",
+						"description": "The path to the file to read",
+					},
+				},
+				"required": []string{"file_path"},
+			},
+		}),
 	}
-
-	if len(resp.Choices[0].Message.ToolCalls) > 0 {
-		toolCall := resp.Choices[0].Message.ToolCalls[0]
-		if toolCall.Function.Name == ReadToolName {
-			var args struct {
-				FilePath string `json:"file_path"`
-			}
-			json.Unmarshal([]byte(toolCall.Function.Arguments), &args)
-
-			content, err := os.ReadFile(args.FilePath)
-			if err != nil {
-				fmt.Errorf("Error: %v", err)
-			}
-			fmt.Print(string(content))
+	for {
+		params := openai.ChatCompletionNewParams{
+			Model:    model,
+			Messages: message,
+			Tools:    tools,
 		}
-	} else {
-		fmt.Print(resp.Choices[0].Message.Content)
+		response, err := client.Chat.Completions.New(context.Background(), params)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %v\n", err)
+			os.Exit(1)
+		}
+		if len(response.Choices) == 0 {
+			panic("No choices in response")
+		}
+
+		if len(response.Choices[0].Message.ToolCalls) > 0 {
+			toolCall := response.Choices[0].Message.ToolCalls[0]
+			if toolCall.Function.Name == ReadToolName {
+				var args struct {
+					FilePath string `json:"file_path"`
+				}
+				json.Unmarshal([]byte(toolCall.Function.Arguments), &args)
+
+				content, err := os.ReadFile(args.FilePath)
+				if err != nil {
+					fmt.Errorf("Error: %v", err)
+				}
+				fmt.Print(string(content))
+			}
+		} else {
+			fmt.Print(response.Choices[0].Message.Content)
+			break
+		}
 	}
 
 }
