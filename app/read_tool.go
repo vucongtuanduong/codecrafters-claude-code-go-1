@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+
+	"github.com/codecrafters-io/claude-code-starter-go/app/constant"
 )
 
 type ReadToolArguments struct {
@@ -34,17 +36,17 @@ func (r *ReadTool) Execute(ctx context.Context, args map[string]any) (string, er
 func NewReadTool() *ReadTool {
 	return &ReadTool{
 		BaseTool: BaseTool{
-			Name:        ReadToolName,
-			Description: ReadToolDescription,
+			Name:        constant.ReadToolName,
+			Description: constant.ReadToolDescription,
 			Params: map[string]interface{}{
-				"type": "object",
-				"properties": map[string]any{
-					"file_path": map[string]any{
-						"type":        "string",
-						"description": "The path to the file to read",
+				constant.OpenaiParamKeyType: constant.OpenaiParamValueObject,
+				constant.OpenaiParamKeyProperties.PropertyName: map[string]any{
+					constant.OpenaiParamKeyProperties.Filepath: map[string]any{
+						constant.OpenaiParamKeyType:        constant.OpenaiParamValueStringType,
+						constant.OpenaiParamKeyDescription: constant.ReadToolFilePathParamDescription,
 					},
 				},
-				"required": []string{"file_path"},
+				constant.OpenaiParamKeyRequired: []string{constant.OpenaiParamKeyProperties.Filepath},
 			},
 		},
 	}

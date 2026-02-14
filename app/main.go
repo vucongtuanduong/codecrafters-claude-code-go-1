@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/codecrafters-io/claude-code-starter-go/app/constant"
 	"github.com/joho/godotenv"
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
@@ -19,7 +20,8 @@ func main() {
 	_ = godotenv.Load()
 	var tools_box map[string]Tool
 	tools_box = make(map[string]Tool)
-	tools_box[ReadToolName] = NewReadTool()
+	tools_box[constant.ReadToolName] = NewReadTool()
+	tools_box[constant.WriteToolName] = NewWriteTool()
 	if prompt == "" {
 		panic("Prompt must not be empty")
 	}
@@ -48,20 +50,8 @@ func main() {
 		},
 	})
 	var tools []openai.ChatCompletionToolUnionParam
-	tools = append(tools, openai.ChatCompletionFunctionTool(openai.FunctionDefinitionParam{
-		Name:        ReadToolName,
-		Description: openai.String("Read and return the content of files"),
-		Parameters: openai.FunctionParameters{
-			"type": "object",
-			"properties": map[string]any{
-				"file_path": map[string]any{
-					"type":        "string",
-					"description": "The path to the file to read",
-				},
-			},
-			"required": []string{"file_path"},
-		},
-	}))
+	tools = append(tools, tools_box[constant.ReadToolName].GetDefinition())
+	tools = append(tools, tools_box[constant.WriteToolName].GetDefinition())
 	for {
 		params := openai.ChatCompletionNewParams{
 			Model:    model,
