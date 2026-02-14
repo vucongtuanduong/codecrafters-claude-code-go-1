@@ -12,6 +12,11 @@ import (
 type ReadToolArguments struct {
 	FilePath string `json:"file_path"`
 }
+
+var ReadToolParamConstant = ReadToolArguments{
+	FilePath: "file_path",
+}
+
 type ReadTool struct {
 	BaseTool
 }
@@ -39,14 +44,14 @@ func NewReadTool() *ReadTool {
 			Name:        constant.ReadToolName,
 			Description: constant.ReadToolDescription,
 			Params: map[string]interface{}{
-				constant.OpenaiParamKeyType: constant.OpenaiParamValueObject,
-				constant.OpenaiParamKeyProperties.PropertyName: map[string]any{
-					constant.OpenaiParamKeyProperties.Filepath: map[string]any{
+				constant.OpenaiParamKeyType: constant.OpenaiParamValueObjectType,
+				constant.OpenaiParamKeyProperties: map[string]any{
+					ReadToolParamConstant.FilePath: map[string]any{
 						constant.OpenaiParamKeyType:        constant.OpenaiParamValueStringType,
 						constant.OpenaiParamKeyDescription: constant.ReadToolFilePathParamDescription,
 					},
 				},
-				constant.OpenaiParamKeyRequired: []string{constant.OpenaiParamKeyProperties.Filepath},
+				constant.OpenaiParamKeyRequired: []string{ReadToolParamConstant.FilePath},
 			},
 		},
 	}

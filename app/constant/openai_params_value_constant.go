@@ -1,4 +1,4 @@
 package constant
 
-const OpenaiParamValueObject = "object"
+const OpenaiParamValueObjectType = "object"
 const OpenaiParamValueStringType = "string"

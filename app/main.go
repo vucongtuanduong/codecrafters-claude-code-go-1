@@ -22,6 +22,7 @@ func main() {
 	tools_box = make(map[string]Tool)
 	tools_box[constant.ReadToolName] = NewReadTool()
 	tools_box[constant.WriteToolName] = NewWriteTool()
+	tools_box[constant.BashToolName] = NewBashTool()
 	if prompt == "" {
 		panic("Prompt must not be empty")
 	}

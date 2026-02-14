@@ -14,6 +14,12 @@ type WriteToolArguments struct {
 	FilePath string `json:"file_path"`
 	Content  string `json:"content"`
 }
+
+var WriteToolParamConstant = WriteToolArguments{
+	FilePath: "file_path",
+	Content:  "content",
+}
+
 type WriteTool struct {
 	BaseTool
 }
@@ -24,14 +30,14 @@ func NewWriteTool() *WriteTool {
 			Name:        constant.WriteToolName,
 			Description: constant.WriteToolDescription,
 			Params: map[string]interface{}{
-				constant.OpenaiParamKeyType:     constant.OpenaiParamValueObject,
-				constant.OpenaiParamKeyRequired: []string{constant.OpenaiParamKeyProperties.Filepath, constant.OpenaiParamKeyProperties.Content},
-				constant.OpenaiParamKeyProperties.PropertyName: map[string]any{
-					constant.OpenaiParamKeyProperties.Filepath: map[string]any{
+				constant.OpenaiParamKeyType:     constant.OpenaiParamValueObjectType,
+				constant.OpenaiParamKeyRequired: []string{WriteToolParamConstant.FilePath, WriteToolParamConstant.Content},
+				constant.OpenaiParamKeyProperties: map[string]any{
+					WriteToolParamConstant.FilePath: map[string]any{
 						constant.OpenaiParamKeyType:        constant.OpenaiParamValueStringType,
 						constant.OpenaiParamKeyDescription: constant.WriteToolFilePathParamDescription,
 					},
-					constant.OpenaiParamKeyProperties.Content: map[string]any{
+					WriteToolParamConstant.Content: map[string]any{
 						constant.OpenaiParamKeyType:        constant.OpenaiParamValueStringType,
 						constant.OpenaiParamKeyDescription: constant.WriteToolContentParamDescription,
 					},
