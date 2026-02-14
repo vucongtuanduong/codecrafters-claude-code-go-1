@@ -53,6 +53,7 @@ func main() {
 	var tools []openai.ChatCompletionToolUnionParam
 	tools = append(tools, tools_box[constant.ReadToolName].GetDefinition())
 	tools = append(tools, tools_box[constant.WriteToolName].GetDefinition())
+	tools = append(tools, tools_box[constant.BashToolName].GetDefinition())
 	for {
 		params := openai.ChatCompletionNewParams{
 			Model:    model,
